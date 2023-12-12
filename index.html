@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>미로찾기 게임</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+
+        #maze-container {
+            display: grid;
+            grid-template-columns: repeat(5, 50px);
+            grid-gap: 2px;
+            margin: 20px auto;
+        }
+
+        .cell {
+            width: 50px;
+            height: 50px;
+            border: 1px solid #000;
+            background-color: #fff;
+            position: relative;
+        }
+
+        #start {
+            background-color: #00ff00;
+        }
+
+        #end {
+            background-color: #ff0000;
+        }
+
+        #player {
+            width: 40px;
+            height: 40px;
+            background-color: #3498db;
+            position: absolute;
+            bottom: 5px;
+            left: 5px;
+            transition: 0.2s;
+        }
+    </style>
+</head>
+<body>
+    <h1>미로찾기 게임</h1>
+    <div id="maze-container"></div>
+    <script>
+        const mazeContainer = document.getElementById("maze-container");
+        const player = document.createElement("div");
+        player.id = "player";
+
+        let maze;
+        let isGameOver = false;
+
+        function createMaze() {
+            maze = [
+                [0, 1, 0, 0, 0],
+                [0, 1, 1, 1, 0],
+                [0, 0, 0, 1, 0],
+                [0, 1, 1, 1, 0],
+                [0, 0, 0, 0, 0],
+            ];
+        }
+
+        function renderMaze() {
+            for (let i = 0; i < maze.length; i++) {
+                for (let j = 0; j < maze[i].length; j++) {
+                    const cell = document.createElement("div");
+                    cell.className = "cell";
+                    cell.dataset.row = i;
+                    cell.dataset.col = j;
+
+                    if (maze[i][j] === 1) {
+                        cell.style.backgroundColor = "#000";
+                    } else if (i === 0 && j === 0) {
+                        cell.id = "start";
+                    } else if (i === maze.length - 1 && j === maze[i].length - 1) {
+                        cell.id = "end";
+                    }
+
+                    mazeContainer.appendChild(cell);
+                }
+            }
+
+            mazeContainer.appendChild(player);
+        }
+
+        function movePlayer(event) {
+            if (isGameOver) {
+                return;
+            }
+
+            const playerRow = parseInt(player.parentElement.dataset.row);
+            const playerCol = parseInt(player.parentElement.dataset.col);
+
+            switch (event.key) {
+                case "ArrowUp":
+                    if (playerRow > 0 && maze[playerRow - 1][playerCol] !== 1) {
+                        player.style.bottom = `${(playerRow - 1) * 52 + 5}px`;
+                    }
+                    break;
+                case "ArrowDown":
+                    if (playerRow < maze.length - 1 && maze[playerRow + 1][playerCol] !== 1) {
+                        player.style.bottom = `${(playerRow + 1) * 52 + 5}px`;
+                    }
+                    break;
+                case "ArrowLeft":
+                    if (playerCol > 0 && maze[playerRow][playerCol - 1] !== 1) {
+                        player.style.left = `${(playerCol - 1) * 52 + 5}px`;
+                    }
+                    break;
+                case "ArrowRight":
+                    if (playerCol < maze[playerRow].length - 1 && maze[playerRow][playerCol + 1] !== 1) {
+                        player.style.left = `${(playerCol + 1) * 52 + 5}px`;
+                    }
+                    break;
+            }
+
+            checkWin(playerRow, playerCol);
+        }
+
+        function checkWin(row, col) {
+            const endCell = document.getElementById("end");
+            const endRow = parseInt(endCell.dataset.row);
+            const endCol = parseInt(endCell.dataset.col);
+
+            if (row === endRow && col === endCol) {
+                alert("축하합니다! 도착했습니다!");
+                isGameOver = true;
+            }
+        }
+
+        function startGame() {
+            isGameOver = false;
+            createMaze();
+            renderMaze();
+        }
+
+        window.addEventListener("keydown", movePlayer);
+
+        startGame();
+    </script>
+</body>
+</html>
